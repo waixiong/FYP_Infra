@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  imagechat_user:
+    image: imagechat_user
+    restart: always
+    networks:
+      - server
+    logging:
+      options:
+        max-size: "100k"
+        max-file: "3"
+    ports: 
+      - 8091:8091
+    # command: [ "./cmd/server" ]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=server
+
+      - traefik.http.services.imagechat_user_rest.loadbalancer.server.port=8091
+      - traefik.http.routers.imagechat_user_rest.service=imagechat_user_rest
+      - traefik.http.routers.imagechat_user_rest.rule=Host(`imagechat.getitqec.com`) && PathPrefix(`/api/user/`)
+      - traefik.http.routers.imagechat_user_rest.entrypoints=https
+      - traefik.http.routers.imagechat_user_rest.tls.certresolver=mytlschallenge
+
+      - traefik.http.services.imagechat_user_grpc.loadbalancer.server.port=8090
+      - traefik.http.services.imagechat_user_grpc.loadbalancer.server.scheme=https
+      - traefik.http.routers.imagechat_user_grpc.service=imagechat_user_grpc
+      - traefik.http.routers.imagechat_user_grpc.rule=Host(`imagechat.getitqec.com`) && PathPrefix(`/serviceproto.UserService/`)
+      - traefik.http.routers.imagechat_user_grpc.entrypoints=grpc
+      - traefik.http.routers.imagechat_user_grpc.tls.certresolver=mytlschallenge
+    container_name: imagechat_user
+
+networks:
+  server:
+    external: true

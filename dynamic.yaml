@@ -1,0 +1,22 @@
+## Setting up the middleware for redirect to https ##
+http:
+  middlewares:
+    redirect:
+      redirectScheme:
+        scheme: https
+    internal-auth:
+      basicAuth:
+        users:
+          - "<name:$pass>" 
+          - "<name:$pass>"
+    compressor:
+      compress: {}
+    cache-header:
+      headers:
+        accessControlMaxAge: 120
+        customResponseHeaders:
+          cache-control: "public, max-age=2592000"
+    api-header:
+      headers:
+        accessControlMaxAge: 120
+    

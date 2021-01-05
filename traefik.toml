@@ -1,0 +1,43 @@
+[api]
+  insecure = false
+  dashboard = true
+  debug = true
+
+[log]
+  level = "DEBUG"
+
+[providers]
+  [providers.docker]
+    watch = true
+    endpoint = "tcp://dockerproxy:2375"
+    exposedByDefault = false
+    network = "server"
+  [providers.file]
+    watch = true
+    filename = "/dynamic.yaml"
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+  [entryPoints.https]
+    address = ":443"
+  [entryPoints.grpc]
+    address = ":2053"
+  [entryPoints.mongo]
+    address = ":2096"
+
+[certificatesResolvers]
+  [certificatesResolvers.mytlschallenge]
+    [certificatesResolvers.mytlschallenge.acme]
+      email = "<MY_EMAIL>"
+      # caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+      storage = "/letsencrypt/acme.json"
+      [certificatesResolvers.mytlschallenge.acme.dnsChallenge]
+        provider = "cloudflare"
+        delayBeforeCheck = 3
+        resolvers = ["1.1.1.1:53", "8.8.8.8:53"]
+
+[serversTransport]
+  # For secure connection on backend.local
+  rootCAs = [ "/etc/traefik/grpc_mycert.pem" ]
+  insecureSkipVerify = true

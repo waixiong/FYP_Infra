@@ -1,0 +1,30 @@
+# copy from invest_stage-mongo
+version: '3.7'
+services:
+
+  fyp_stage-mongo:
+    image: mongo
+    restart: always
+    networks:
+      - server
+    ports:
+      - 27017:27017 # unsecure port, might not be needed as secure port 2096 is accessible
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: <user>
+      MONGO_INITDB_ROOT_PASSWORD: <pass>
+    volumes:
+      - ./mongo-volume:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo-js:ro
+    labels:
+      - traefik.enable=true
+      - traefik.backend=fyp_stage-mongo
+      - traefik.tcp.routers.fyp_stage-mongo.rule=HostSNI(`5n.getitqec.com`)
+      - traefik.docker.network=server
+      - traefik.tcp.routers.fyp_stage-mongo.entrypoints=mongo #mongo
+      - traefik.tcp.routers.fyp_stage-mongo.service=fyp_stage-mongo
+      - traefik.tcp.services.fyp_stage-mongo.loadbalancer.server.port=27017
+    container_name: fyp_stage-mongo
+
+networks:
+  server:
+    external: true
